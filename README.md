@@ -19,6 +19,8 @@
 
 我写这个主要就是解决自定义错误提示。所以我这样规定了结构体`tag`的用法:
 
+以冒号`:`分割，第一个为匹配规则，第二个为错误提示信息(没有默认值，必填)。如果使用的正则里面包含`:`可以把分割的冒号用`\\:`表示。具体也有例子。
+
 ```
 字段名 类型 `验证类型1:"格式:错误提示信息1" 验证类型2:"格式:错误提示信息2"`
 
@@ -49,6 +51,7 @@ type person struct {
 	Age    int64  `json:"age" required:"年龄不能为空" gte:"18:年龄应当大于18岁" lte:"100:年龄应该小于等于100岁"`
 	Other  string `json:"other" regx:"^hello:\\d{3,5}$\\:其他字段正则校验失败"`
 	Gender *bool   `json:"gender" required:"性别不能为空"`
+    Email  string `json:"email" regx:"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$:邮箱格式错误"`
 }
 
 // 由于普通bool类型 无法判断 false 还是未赋值，所以用*bool 见: https://stackoverflow.com/questions/43351216/check-if-boolean-value-is-set-in-go
@@ -245,7 +248,8 @@ func Test_Iris_Params(t *testing.T) {
 
 ## 不足之处
 
-由于时间仓促，没有写验证复杂的数据类型的处理，比如结构体嵌套， slice等。具体实现应该也不难。
+由于时间仓促，没有写验证复杂的数据类型的处理，比如结构体嵌套， slice等，还有就是自定义的类型，
+比如这个库 [null.xx](https://github.com/guregu/null) ，`gorm`的`sql.NullString`之类的也不支持 。具体实现应该也不难。
 
 
 

@@ -2,7 +2,6 @@ package validator
 
 import (
 	"github.com/go-playground/assert/v2"
-	"strings"
 	"testing"
 )
 
@@ -11,6 +10,7 @@ type person struct {
 	Age    int64  `json:"age" required:"年龄不能为空" gte:"18:年龄应当大于18岁" lte:"100:年龄应该小于等于100岁"`
 	Other  string `json:"other" regx:"^hello:\\d{3,5}$\\:其他字段正则校验失败"`
 	Gender *bool  `json:"gender" required:"性别不能为空"`
+	Email  string `json:"email" regx:"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$:邮箱格式错误"`
 }
 
 // 由于普通bool类型 无法判断 false 还是未赋值，所以用*bool 见: https://stackoverflow.com/questions/43351216/check-if-boolean-value-is-set-in-go
@@ -65,17 +65,15 @@ func Test_Verify_Other(t *testing.T) {
 
 func Test_Verify_Default_Field(t *testing.T) {
 	// Other 字段可以为空测试
-	user2 := person{Name: "nick123", Age: 23, Gender: &gender}
+	user2 := person{Name: "nick123", Age: 23, Gender: &gender, Email: "demo@demo.com"}
 
 	if err := Verify(user2); err != nil {
 		panic(err.Error())
 	}
-}
 
-func Test_sp(t *testing.T) {
-	//z := "2021-11-10 11:10:10"
-	z := "2021-11-10"
-	arr := strings.Split(z, " ")
-	t.Log(arr[0])
+	user2.Email = "qqq.com"
+	if err := Verify(user2); err != nil {
+		assert.Equal(t, err.Error(), "邮箱格式错误")
+	}
 
 }
